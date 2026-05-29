@@ -40,9 +40,11 @@ public class Patrol extends Ghost {
         // How to verify: run the game and stay far from the pink ghost — it should
         // move toward the top-right area of the maze. Walk close and it should
         // switch to chasing you directly.
-        double chase = Math.hypot(player.col(map), player.row(map));
+        double deltaCol = player.col(map) - this.col(map);
+        double deltaRow = player.row(map) - this.row(map);
+        double chase = Math.hypot(deltaCol, deltaRow);
         if (chase > CHASE_RADIUS){
-            return new int[]{ map.cols-2, CORNER_ROW };
+            return new int[]{ map.cols-2 , CORNER_ROW };
         }
 
         else if (chase <= CHASE_RADIUS){

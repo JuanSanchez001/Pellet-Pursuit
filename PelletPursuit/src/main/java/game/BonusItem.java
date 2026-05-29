@@ -108,7 +108,7 @@ public abstract class BonusItem extends Sprite {
 
 /**
  * Cherry — the classic Pac-Man stage-1 bonus fruit.
- * Worth 200 points, shown as a red circle labelled "200", lasts 8 seconds.
+ * Worth 200 points, shown as a red circle labeled "200", lasts 8 seconds.
  */
 class Cherry extends BonusItem {
 
@@ -119,4 +119,23 @@ class Cherry extends BonusItem {
     @Override public int    getPoints() { return 200; }
     @Override public String getLabel()  { return "200"; }
     @Override public Color  getColor()  { return Color.RED; }
+}
+
+class Strawberry extends BonusItem {
+
+    public Strawberry(double pixelX, double pixelY) {
+        super(pixelX, pixelY, GameMap.TILE, 8.0);
+    }
+    @Override public void draw(GraphicsContext gc) {
+        double lifetime1 = getLifetime();
+        super.draw(gc);
+        if (lifetime1 < 5.0)
+        {
+            gc.setFill(Color.GREEN);
+            gc.fillRect(x, y, size, size);
+    }
+        }
+    @Override public int    getPoints() { return 10000; }
+    @Override public String getLabel()  { return "500!"; }
+    @Override public Color  getColor()  { return Color.PALEVIOLETRED; }
 }

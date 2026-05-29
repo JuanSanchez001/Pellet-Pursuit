@@ -20,7 +20,7 @@ public class GameApp extends Application {
     // ── Customize your game ──────────────────────────────────────────────────
     // Change any of these to make your submission feel like your own.
     private static final String GAME_TITLE        = "Pellet Pursuit";
-    private static final String GAME_SUBTITLE     = "your tagline here";
+    private static final String GAME_SUBTITLE     = "Super Fast";
     private static final String MSG_READY         = "GET READY!";
     private static final String MSG_DEAD          = "OUCH!";
     private static final String MSG_WIN           = "YOU WIN!";
@@ -143,8 +143,10 @@ public class GameApp extends Application {
         // Add each ghost here after you finish its chooseTarget() in Phase 2:
         //   new Patrol(map), new Shy(map), new Ambush(map)
         ghosts    = new ArrayList<>(List.of(
-                new Shadow(map)
-                //new Patrol(map)
+                new Shadow(map),
+                new Patrol(map),
+                new Shy(map),
+                new Ambush(map)
                 ));
         scoreTree = new ScoreTree();
         scoreTree.loadFromFile(SCORES_FILE);
@@ -158,8 +160,10 @@ public class GameApp extends Application {
         // Add each ghost here after you finish its chooseTarget() in Phase 2:
         //   new Patrol(map), new Shy(map), new Ambush(map)
         ghosts = new ArrayList<>(List.of(
-                new Shadow(map),
-                new Patrol(map)
+                 new Shadow(map),
+                 new Patrol(map),
+                 new Shy(map),
+                 new Ambush(map)
 
 
         ));
@@ -293,10 +297,11 @@ public class GameApp extends Application {
                 hudMessage     = "+1 UP!";
                 hudMessageTimer = 2.0;
             }
-            if (bonusItems.isEmpty() && dotsEaten >= config.bonusThreshold) {
+            if (bonusItems.isEmpty() && dotsEaten == config.bonusThreshold) {
                 double bx = map.tileCenterX(map.spawnCol(GameMap.Tile.SPAWN_BONUS)) - GameMap.TILE / 2.0;
                 double by = map.tileCenterY(map.spawnRow(GameMap.Tile.SPAWN_BONUS)) - GameMap.TILE / 2.0;
-                bonusItems.add(new Cherry(bx, by));
+                //bonusItems.add(new Cherry(bx, by));
+                bonusItems.add(new Strawberry(bx, by));
             }
         }
 
@@ -356,6 +361,22 @@ public class GameApp extends Application {
         // TODO (Phase 3): Update every bonus item and handle collection and expiry.
         // Use two separate loops — see the Phase 3 guide for why a single loop
         // causes a ConcurrentModificationException, and how to structure them.
+        for (BonusItem item : bonusItems) {
+            item.update(dt, map);
+            if (item.collidesWith(player)) {
+                score += item.getPoints();
+                audio.playBonus();
+            }
+        }
+
+        List<BonusItem> toRemove = new ArrayList<>();
+        for (BonusItem item : bonusItems) {
+            if (item.collidesWith(player) || item.isExpired()) {
+                toRemove.add(item);
+            }
+        }
+        bonusItems.removeAll(toRemove);
+        //one-liner(bonusItems.removeIf(item -> item.collidesWith(player) || item.isExpired());)
     }
 
     private void render(GraphicsContext gc) {

@@ -90,7 +90,7 @@ public class LevelConfig {
         // --- ghost speed ---------------------------------------------------
         // Starts at 1.0 and increases by 0.08 each level.
         // Capped at 2.0 so ghosts never become impossible to dodge.
-        double speed = 1.0 + (level - 1) * 0.08;
+        double speed = 1.0 + (level - 1) * 0.50;
         speed = Math.min(speed, 2.0);
 
         // --- frighten duration ---------------------------------------------
@@ -108,7 +108,7 @@ public class LevelConfig {
         // --- bonus threshold -----------------------------------------------
         // Fixed at 70 dots for every level.
         // Change this if you want the bonus to appear earlier or later.
-        int bonus = 70;
+        int bonus = 100;
 
         return new LevelConfig(speed, frighten, spawn, bonus);
     }

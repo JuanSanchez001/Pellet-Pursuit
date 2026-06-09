@@ -16,7 +16,8 @@ import java.util.EnumSet;
 public class GameMap {
 
     // TILE is a rendering constant — always 28 px regardless of maze size
-    public static final int TILE = 28;
+    public static final int TILE = 23;
+    //TILE = 16;
 
     // Change these to customize your maze's color scheme
     public Color dotColor  = Color.web("#FFFFFF"); // dot and power-pellet color (IF YOU WANT ORIGINAL: #ffeb99)
@@ -35,6 +36,7 @@ public class GameMap {
         D,            // Dot
         P,            // Power pellet
         E,            // Empty
+        B,            // Barrier
         SPAWN_PLAYER, // Player spawn position
         SPAWN_G0,     // Ghost 0 (Shadow) spawn
         SPAWN_G1,     // Ghost 1 (Patrol) spawn
@@ -44,7 +46,7 @@ public class GameMap {
     }
 
     // Short aliases so the maze array below stays readable
-    private static final Tile W  = Tile.W,  D  = Tile.D,  P  = Tile.P,  E  = Tile.E;
+    private static final Tile W  = Tile.W,  D  = Tile.D,  P  = Tile.P, B  = Tile.B,  E  = Tile.E;
     private static final Tile PL = Tile.SPAWN_PLAYER;
     private static final Tile G0 = Tile.SPAWN_G0, G1 = Tile.SPAWN_G1;
     private static final Tile G2 = Tile.SPAWN_G2, G3 = Tile.SPAWN_G3;
@@ -64,24 +66,55 @@ public class GameMap {
     // Move any spawn tile freely — just keep it on an open (non-W) tile.
     // Pass a different Tile[][] to GameMap(layout) for a custom maze.
     // ---------------------------------------------------------------
-//    public static final Tile[][] DEFAULT_LAYOUT = {
-//        {W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W},
-//        {W,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  W},
-//        {W,  P,  W,  W,  D,  W,  W,  D,  W,  W,  D,  W,  W,  P,  W},
-//        {W,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  W},
-//        {W,  D,  W,  W,  W,  W,  W,  E,  W,  W,  W,  W,  W,  D,  W},
-//        {W,  D,  D,  D,  W,  E,  G1, G0, G2, E,  W,  D,  D,  D,  W},
-//        {W,  D,  W,  D,  W,  E,  G3, E,  E,  E,  W,  D,  W,  D,  W},
-//        {W,  D,  D,  D,  W,  W,  W,  W,  W,  W,  W,  D,  D,  D,  W},
-//        {W,  D,  W,  W,  D,  D,  D,  PL, D,  D,  D,  W,  W,  D,  W},
-//        {W,  D,  D,  D,  D,  W,  D,  BN, D,  W,  D,  D,  D,  D,  W},
-//        {W,  D,  W,  W,  D,  W,  D,  D,  D,  W,  D,  W,  W,  D,  W},
-//        {W,  P,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  P,  W},
-//        {W,  D,  W,  W,  D,  W,  W,  D,  W,  W,  D,  W,  W,  D,  W},
-//        {W,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  W},
-//        {W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W},
-//    };
-    public static final Tile[][] DEFAULT_LAYOUT = {
+    public static final Tile[][] THIRD_LAYOUT = {
+            {W,  D,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  D,  W},
+            {W,  P,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  W,  W,  D,  D,  D,  D,  D,  D , D , D,  D,  D , D,  D,  D,  D,  D,  P,  W},
+            {W,  D,  W,  W,  W,  W,  D,  W,  W,  W,  W,  W,  W,  W,  W,  W,  D,  W,  W,  D,  W,  W,  W,  W,  W , W , W,  W,  W , D,  W,  W,  W,  W,  D,  W},
+            {W,  D,  W,  W,  W,  W,  D,  W,  W,  W,  W,  W,  W,  W,  W,  W,  D,  W,  W,  D,  W,  W,  W,  W,  W , W , W,  W,  W , D,  W,  W,  W,  W,  D,  W},
+            {W,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  P,  D,  D,  D,  D,  D,  D , D , D,  D,  D , D,  D,  D,  D,  D,  D,  W},
+            {W,  D,  W,  W,  W,  W,  D,  W,  W,  D,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W , W , D,  W,  W , D,  W,  W,  W,  W,  D,  W},
+            {W,  D,  W,  W,  W,  W,  D,  W,  W,  D,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W , W , D,  W,  W , D,  W,  W,  W,  W,  D,  W},
+            {W,  D,  D,  D,  D,  D,  P,  W,  W,  D,  D,  D,  D,  D,  D,  D,  D,  W,  W,  D,  D,  D,  D,  D,  D , D , D,  W,  W , P,  D,  D,  D,  D,  D,  W},
+            {W,  W,  W,  W,  W,  W,  D,  W,  W,  W,  W,  W,  W,  W,  W,  D,  D,  W,  W,  D,  D,  W,  W,  W,  W , W , W,  W,  W , D,  W,  W,  W,  W,  W,  W},
+            {W,  W,  W,  W,  W,  W,  D,  W,  W,  W,  W,  W,  W,  W,  W,  D,  D,  W,  W,  D,  D,  W,  W,  W,  W , W , W,  W,  W , D,  W,  W,  W,  W,  W,  W},
+            {W,  W,  W,  W,  W,  W,  D,  W,  W,  D,  D,  D,  D,  D,  D,  D,  D,  G0, D,  D,  D,  D,  D,  D,  D , D , D,  W,  W,  D,  W,  W,  W,  W,  W,  W},
+            {W,  W,  W,  W,  W,  W,  D,  W,  W,  D,  W,  W,  W,  W,  W,  W,  W,  B,  B,  W,  W,  W,  W,  W,  W , W , D,  W,  W , D,  W,  W,  W,  W,  W,  W},
+            {W,  W,  W,  W,  W,  W,  D,  W,  W,  D,  W,  W,  W,  W,  W,  W,  W,  E,  E,  W,  W,  W,  W,  W,  W , W , D,  W,  W , D,  W,  W,  W,  W,  W,  W},
+            {D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  W,  W,  W,  W,  E,  E,  E,  G1,  G2,  G3,  E,  E,  W,  W,  W , W , D,  D,  D , D,  D,  D,  D,  D,  D,  D},
+            {D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  W,  W,  W,  W,  E,  E,  E,  E,  E,  E,  E,  E,  W,  W,  W , W , D,  D,  D , D,  D,  D,  D,  D,  D,  D},
+            {W,  W,  W,  W,  W,  W,  D,  W,  W,  D,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W , W , D,  W,  W , D,  W,  W,  W,  W,  W,  W},
+            {W,  W,  W,  W,  W,  W,  D,  W,  W,  D,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W , W , D,  W,  W , D,  W,  W,  W,  W,  W,  W},
+            {W,  W,  W,  W,  W,  W,  D,  W,  W,  D,  D,  D,  D,  D,  D,  D,  D,  D,  BN,  D,  D,  D,  D,  D,  D , D , D,  W,  W , D,  W,  W,  W,  W,  W,  W},
+            {W,  W,  W,  W,  W,  W,  D,  W,  W,  D,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W , W , D,  W,  W , D,  W,  W,  W,  W,  W,  W},
+            {W,  W,  W,  W,  W,  W,  D,  W,  W,  D,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W , W , D,  W,  W , D,  W,  W,  W,  W,  W,  W},
+            {W,  D,  D,  D,  D,  D,  P,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  W,  W,  D,  D,  D,  D,  D,  D , D , D,  D,  D , P,  D,  D,  D,  D,  D,  W},
+            {W,  D,  W,  W,  W,  W,  D,  W,  W,  W,  W,  W,  W,  W,  W,  W,  D,  W,  W,  D,  W,  W,  W,  W,  W , W , W,  W,  W , D,  W,  W,  W,  W,  D,  W},
+            {W,  D,  W,  W,  W,  W,  D,  W,  W,  W,  W,  W,  W,  W,  W,  W,  D,  W,  W,  D,  W,  W,  W,  W,  W , W , W,  W,  W , D,  W,  W,  W,  W,  D,  W},
+            {W,  D,  D,  D,  W,  W,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  P,  PL,  D,  D,  D,  D,  D,  D , D , D,  D,  D , D,  W , W,  D,  D,  D,  W},
+            {W,  W,  W,  D,  W,  W,  D,  W,  W,  D,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W , W , D,  W,  W , D,  W,  W,  D,  W,  W,  W},
+            {W,  W,  W,  D,  W,  W,  D,  W,  W,  D,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W , W , D,  W,  W , D,  W,  W,  D,  W,  W,  W},
+            {W,  P,  D,  D,  D,  D,  D,  W,  W,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D , D , D,  W,  W , D,  D,  D,  D,  D,  P,  W},
+            {W,  D,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  D,  W},
+    };
+
+    public static final Tile[][] FIRST_LAYOUT = {
+        {W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W},
+        {W,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  W},
+        {W,  P,  W,  W,  D,  W,  W,  D,  W,  W,  D,  W,  W,  P,  W},
+        {W,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  W},
+        {W,  D,  W,  W,  W,  W,  W,  E,  W,  W,  W,  W,  W,  D,  W},
+        {W,  D,  D,  D,  W,  E,  G1, G0, G2, E,  W,  D,  D,  D,  W},
+        {W,  D,  W,  D,  W,  E,  G3, E,  E,  E,  W,  D,  W,  D,  W},
+        {W,  D,  D,  D,  W,  W,  W,  W,  W,  W,  W,  D,  D,  D,  W},
+        {W,  D,  W,  W,  D,  D,  D,  PL, D,  D,  D,  W,  W,  D,  W},
+        {W,  D,  D,  D,  D,  W,  D,  BN, D,  W,  D,  D,  D,  D,  W},
+        {W,  D,  W,  W,  D,  W,  D,  D,  D,  W,  D,  W,  W,  D,  W},
+        {W,  P,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  P,  W},
+        {W,  D,  W,  W,  D,  W,  W,  D,  W,  W,  D,  W,  W,  D,  W},
+        {W,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  W},
+        {W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W},
+    };
+    public static final Tile[][] SECOND_LAYOUT = {
             {W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W},
             {W,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  D,  W},
             {W,  D,  W,  W,  W,  D,  W,  W,  W,  D,  W,  D,  W,  W,  W,  D,  W,  W,  W,  D,  W},
@@ -93,7 +126,7 @@ public class GameMap {
             {W,  D,  W,  W,  W,  D,  W,  W,  W,  D,  W,  D,  W,  W,  W,  D,  W,  W,  W,  D,  W},
             {W,  D,  D,  D,  D,  D,  D,  D,  D,  D,  W,  D,  D,  D,  D,  D,  D,  D,  D,  D,  W},
             {W,  D,  D,  D,  D,  W,  D,  D,  W,  W,  W,  W,  W,  D,  D,  W,  D,  D,  D,  D,  W},
-            {W,  D,  W,  D,  W,  W,  W,  D, G0, G1, BN, G2,  G3,  D,  W,  W,  W,  D,  W,  D,  W},
+            {W,  D,  W,  D,  W,  W,  W,  D,  G0, G1, BN, G2, G3, D,  W,  W,  W,  D,  W,  D,  W},
             {W,  D,  D,  D,  D,  W,  D,  D,  W,  W,  W,  W,  W,  D,  D,  W,  D,  D,  D,  D,  W},
             {W,  D,  D,  D,  D,  D,  D,  D,  D,  D,  W,  D,  D,  D,  D,  D,  D,  D,  D,  D,  W},
             {W,  D,  W,  W,  W,  D,  W,  W,  W,  D,  W,  D,  W,  W,  W,  D,  W,  W,  W,  D,  W},
@@ -107,6 +140,9 @@ public class GameMap {
             {W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W,  W},
     };
 
+
+
+
     // Original layout (never modified) and working copy (dots consumed as eaten)
     private final Tile[][] layout;
     private final Tile[][] state;
@@ -117,7 +153,7 @@ public class GameMap {
     private int dotsRemaining;
     private int totalDots;
 
-    public GameMap() { this(DEFAULT_LAYOUT); }
+    public GameMap() { this(THIRD_LAYOUT); }
 
     public GameMap(Tile[][] layout) {
         this.rows   = layout.length;
@@ -173,9 +209,7 @@ public class GameMap {
     }
 
     /** True when row {@code r} has open tiles on both the left and right edges. */
-    public boolean isHorizontalTunnel(int r) {
-        return r >= 0 && r < rows && layout[r][0] != Tile.W;
-    }
+    public boolean isHorizontalTunnel(int r) {return  r >= 0 && r < rows && layout[r][0] != Tile.W;}
 
     /** True when col {@code c} has open tiles on both the top and bottom edges. */
     public boolean isVerticalTunnel(int c) {
@@ -203,14 +237,18 @@ public class GameMap {
     public boolean isOutOfGrid(int col, int row) {
         // TODO (Phase 1): Return true if (col, row) is outside the grid.
         // The grid has 'cols' columns (0 to cols-1) and 'rows' rows (0 to rows-1).
-        return (col <= 0 || col >= cols - 1 || row <= 0 || row >= rows - 1);
+//        if (row > 0 &&  col >= cols - 1){
+//            return false;
+//        }
+        //return (col < 0 || col >= cols - 1 || row < 0 || row >= rows - 1);
+        return (col < 0 || col > cols - 1 || row < 0 || row > rows - 1);
         //return false; // placeholder — replace this
     }
 
     public boolean isWall(int col, int row) {
         // TODO (Phase 1): Return true if the tile at (col, row) is a wall.
         // Use getTile(col, row) — one line is enough.
-        return getTile(col, row).equals(W); // placeholder — replace this
+        return getTile(col, row) == Tile.W; // placeholder — replace this
     }
 
     // Returns 0 if nothing eaten, 10 for dot, 50 for power pellet
@@ -219,6 +257,12 @@ public class GameMap {
         // and return its point value. If the tile is empty, return 0.
         // Removing a dot means replacing it with Tile.E and updating dotsRemaining.
         // Note: state is indexed [row][col], not [col][row].
+        if (row < 0 || row >= state.length) {
+            return 0;
+        }
+        if (col < 0 || col >= state[row].length) {
+            return 0;
+        }
         if (state[row][col].equals(D)) {
             state[row][col] = Tile.E;
             dotsRemaining--;
@@ -266,17 +310,13 @@ public class GameMap {
                 double px = c * TILE;        // pixel x of this tile's top-left corner
                 double py = r * TILE;        // pixel y of this tile's top-left corner
                 Tile t = state[r][c];
+                double cx = px + TILE / 2.0;
+                double cy = py + TILE / 2.0;
                 switch (t) {
                     case W -> {gc.setFill(wallColor); gc.fillRoundRect(px + 1, py + 1, TILE - 2, TILE - 2, 6, 6);}
-                }
-                double cx = px + TILE / 2.0, cy = py + TILE / 2.0;
-                switch (t) {
+                    case B -> {gc.setFill(wallColor); gc.fillRoundRect(px + 1, py + 1, TILE - 2, TILE - 2, 6, 6);}
                     case D -> {gc.setFill(dotColor); gc.fillOval(cx - 3, cy - 3, 6, 6); }
-                }
-                switch (t) {
                     case P -> { gc.fillOval(cx - 7, cy - 7, 14, 14); }
-                }
-                switch (t) {
                     case E -> {}
                 }
             }

@@ -90,7 +90,7 @@ public class LevelConfig {
         // --- ghost speed ---------------------------------------------------
         // Starts at 1.0 and increases by 0.08 each level.
         // Capped at 2.0 so ghosts never become impossible to dodge.
-        double speed = 1.0 + (level - 1) * 0.50;
+        double speed = 1.0 + (level - 1) * 0.40;
         speed = Math.min(speed, 2.0);
 
         // --- frighten duration ---------------------------------------------

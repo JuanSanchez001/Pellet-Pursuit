@@ -101,7 +101,9 @@ public class GameApp extends Application {
      * All layouts must satisfy the rules in GameMap's constructor Javadoc.
      */
     protected GameMap.Tile[][] getLayout(int lvl) {
-        return GameMap.DEFAULT_LAYOUT;
+        if (lvl == 2) { return GameMap.SECOND_LAYOUT; }
+        if (lvl == 3) { return GameMap.THIRD_LAYOUT; }
+        return GameMap.FIRST_LAYOUT;
     }
 
     @Override
@@ -137,7 +139,7 @@ public class GameApp extends Application {
     }
 
     private void initGame() {
-        map       = new GameMap(getLayout(1));
+        map       = new GameMap(getLayout(level));
         player    = new Player(map);
         // Shadow is the worked example — study it before implementing the others.
         // Add each ghost here after you finish its chooseTarget() in Phase 2:
@@ -168,15 +170,25 @@ public class GameApp extends Application {
 
         ));
 
-        // Resize the window only when the new layout has different pixel dimensions
-        if (canvas != null &&
-                ((int) canvas.getWidth() != map.width || (int) canvas.getHeight() != canvasH())) {
-            canvas.setWidth(map.width);
-            canvas.setHeight(canvasH());
-            primaryStage.sizeToScene();
-            primaryStage.centerOnScreen();
+        int newWidth = map.width;
+        int newHeight = map.height + HUD_HEIGHT + 15;
+
+
+        // Resize canvas
+        if (canvas != null) {
+            canvas.setWidth(newWidth);
+            canvas.setHeight(newHeight);
         }
 
+        // Resize stage (window)
+        if (primaryStage != null) {
+            primaryStage.hide();
+            primaryStage.setWidth(newWidth);
+            primaryStage.setHeight(newHeight);
+            primaryStage.show();
+
+            primaryStage.centerOnScreen();
+        }
         for (Ghost g : ghosts) {
             g.applySpeedMultiplier(config.ghostSpeedMultiplier);
         }
@@ -380,6 +392,7 @@ public class GameApp extends Application {
     }
 
     private void render(GraphicsContext gc) {
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, map.width, canvasH());
 

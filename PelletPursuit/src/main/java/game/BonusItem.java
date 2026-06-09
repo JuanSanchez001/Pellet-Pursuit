@@ -131,11 +131,11 @@ class Strawberry extends BonusItem {
         super.draw(gc);
         if (lifetime1 < 5.0)
         {
-            gc.setFill(Color.GREEN);
-            gc.fillRect(x, y, size, size);
+            gc.setFill(Color.PINK);
+            gc.fillRoundRect(x, y, size, size, 5, 5);
     }
         }
-    @Override public int    getPoints() { return 10000; }
+    @Override public int    getPoints() { return 500; }
     @Override public String getLabel()  { return "500!"; }
     @Override public Color  getColor()  { return Color.PALEVIOLETRED; }
 }
